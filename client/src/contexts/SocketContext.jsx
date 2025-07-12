@@ -26,19 +26,14 @@ export const SocketProvider = ({ children }) => {
       // Make sure the URL dynamically switches based on environment
       // Also set transports: ["websocket", "polling"] to ensure compatibility with Vercel and avoid connection errors
       const getSocketURL = () => {
-        // Always use environment variable first if available
-        if (import.meta.env.VITE_API_URL) {
-          console.log("🌐 Using VITE_API_URL:", import.meta.env.VITE_API_URL);
-          return import.meta.env.VITE_API_URL;
+        // In production, connect to Render backend
+        if (import.meta.env.PROD) {
+          const renderURL = import.meta.env.VITE_API_URL || "https://studysync-mern-project.onrender.com";
+          console.log("🌐 Production mode - connecting to Render backend:", renderURL);
+          return renderURL;
         }
         
-        // Production check - if we're on vercel.app domain, use Render backend
-        if (window.location.hostname.includes('vercel.app')) {
-          console.log("🌐 Vercel production detected - using Render backend");
-          return "https://studysync-mern-project.onrender.com";
-        }
-        
-        // Development fallback
+        // In development, use localhost
         console.log("🔧 Development mode - using localhost");
         return "http://localhost:5000";
       };
@@ -65,13 +60,18 @@ export const SocketProvider = ({ children }) => {
       newSocket = io(socketURL, {
         withCredentials: true,
         auth: { token }, // Send token for auth
-        reconnectionAttempts: 5,
-        reconnectionDelay: 2000,
-        timeout: 20000, // Increase timeout for cross-origin requests
-        // Fallback for Vercel - prioritize WebSocket but fallback to polling
-        transports: ["websocket", "polling"],
+        reconnectionAttempts: 10, // More attempts for reliability
+        reconnectionDelay: 3000,  // Longer delay for Render
+        timeout: 30000, // Increased timeout for cross-origin requests
+        // Prioritize polling for Render.com compatibility
+        transports: ["polling", "websocket"],
+        // Render-specific configurations for better stability
+        forceNew: true,
         upgrade: true,
-        rememberUpgrade: true,
+        rememberUpgrade: false, // Don't remember upgrades for better reliability
+        autoConnect: true,
+        // Additional options for production stability
+        closeOnBeforeunload: false
       });
 
       // Connection debugging

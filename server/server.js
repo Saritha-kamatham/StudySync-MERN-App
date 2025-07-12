@@ -15,14 +15,29 @@ const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? ["https://study-sync-mern-project.vercel.app", "https://*.vercel.app", "https://vercel.app"]
+      ? [
+          "https://study-sync-mern-project.vercel.app",
+          "https://*.vercel.app"
+        ]
       : "http://localhost:5173",
     methods: ["GET", "POST"],
-    credentials: true,
-    allowEIO3: true
+    credentials: true
   },
+  // Prioritize polling for Render.com compatibility
+  transports: ['polling', 'websocket'],
   allowEIO3: true,
-  transports: ['polling', 'websocket']
+  // Render-specific configurations
+  pingTimeout: 120000,  // Increased for better stability
+  pingInterval: 25000,
+  connectTimeout: 60000,
+  // Force polling for more reliable connections on Render
+  forceNew: true,
+  // Additional headers for better compatibility
+  extraHeaders: {
+    "Access-Control-Allow-Origin": process.env.NODE_ENV === 'production' 
+      ? "https://study-sync-mern-project.vercel.app"
+      : "http://localhost:5173"
+  }
 });
 
 // Create rooms object to track active users
@@ -42,6 +57,22 @@ app.use(cors({
     : "http://localhost:5173",
   credentials: true
 }));
+
+// Additional middleware for Socket.IO on Render
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', process.env.NODE_ENV === 'production' 
+    ? 'https://study-sync-mern-project.vercel.app' 
+    : 'http://localhost:5173');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json());
 
 // Connect to MongoDB
@@ -54,6 +85,16 @@ app.use('/api/rooms', roomRoutes);
 // Root route for health check or friendly message
 app.get('/', (req, res) => {
   res.send('StudySync API is running');
+});
+
+// Socket.IO health check
+app.get('/socket.io/health', (req, res) => {
+  res.json({ 
+    status: 'Socket.IO server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    transport: 'polling preferred'
+  });
 });
 
 const PORT = process.env.PORT || 5000;
