@@ -20,8 +20,18 @@ export const SocketProvider = ({ children }) => {
     try {
       console.log("Attempting to connect to Socket.IO server...");
       
+      // Determine socket server URL based on environment
+      const getSocketURL = () => {
+        if (import.meta.env.PROD) {
+          // In production, use the API URL or current domain
+          return import.meta.env.VITE_API_URL || window.location.origin;
+        }
+        // In development, use localhost
+        return "http://localhost:5000";
+      };
+      
       // Create new socket connection
-      newSocket = io("http://localhost:5000", {
+      newSocket = io(getSocketURL(), {
         withCredentials: true,
         auth: { token }, // Send token for auth
         reconnectionAttempts: 10,
