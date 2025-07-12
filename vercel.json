@@ -5,7 +5,8 @@
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "npm run build"
       }
     },
     {
@@ -33,6 +34,11 @@
       "destination": "/client/dist/index.html"
     }
   ],
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://study-sync-mern-project.vercel.app"
+    }
+  },
   "env": {
     "NODE_ENV": "production",
     "VITE_API_URL": "https://study-sync-mern-project.vercel.app"

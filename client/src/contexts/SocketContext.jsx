@@ -20,30 +20,49 @@ export const SocketProvider = ({ children }) => {
     try {
       console.log("Attempting to connect to Socket.IO server...");
       
-      // Determine socket server URL based on environment
+      // Initialize socket.io-client with dynamic URL from environment variable
+      // Use VITE_API_URL as the backend endpoint instead of localhost
+      // This should work in both development and production (Render + Vercel)
+      // Enable websocket transport and allow credentials
       const getSocketURL = () => {
-        // Check if we're in production (multiple ways to detect)
-        const isProduction = 
-          import.meta.env.PROD || 
-          import.meta.env.NODE_ENV === 'production' ||
-          window.location.hostname.includes('vercel.app') ||
-          window.location.hostname.includes('study-sync-mern-project');
-        
-        if (isProduction) {
-          // In production, use the production URL
+        // Hardcoded production check - if we're on vercel.app domain, use production URL
+        if (window.location.hostname.includes('vercel.app')) {
+          console.log("🌐 Vercel production detected - using hardcoded production URL");
           return "https://study-sync-mern-project.vercel.app";
         }
+        
+        // Check if we're in production by domain or environment
+        const isProduction = window.location.hostname.includes('vercel.app') || 
+                           window.location.hostname.includes('netlify.app') ||
+                           import.meta.env.PROD;
+        
+        if (isProduction) {
+          const prodURL = import.meta.env.VITE_API_URL || "https://study-sync-mern-project.vercel.app";
+          console.log("🌐 Production mode detected - using URL:", prodURL);
+          return prodURL;
+        }
+        
         // In development, use localhost
+        console.log("🔧 Development mode - using localhost");
         return "http://localhost:5000";
       };
       
       const socketURL = getSocketURL();
       console.log("🔗 Socket.IO connecting to:", socketURL);
+      console.log("🔍 Environment debug:", {
+        hostname: window.location.hostname,
+        isProd: import.meta.env.PROD,
+        apiUrl: import.meta.env.VITE_API_URL,
+        finalURL: socketURL
+      });
       console.log("🔍 Environment detection:", {
         'import.meta.env.PROD': import.meta.env.PROD,
+        'import.meta.env.MODE': import.meta.env.MODE,
         'import.meta.env.NODE_ENV': import.meta.env.NODE_ENV,
         'window.location.hostname': window.location.hostname,
-        'VITE_API_URL': import.meta.env.VITE_API_URL
+        'window.location.origin': window.location.origin,
+        'VITE_API_URL': import.meta.env.VITE_API_URL,
+        'All env vars': Object.keys(import.meta.env)
       });
       
       // Create new socket connection
