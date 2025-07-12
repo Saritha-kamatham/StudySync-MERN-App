@@ -22,16 +22,32 @@ export const SocketProvider = ({ children }) => {
       
       // Determine socket server URL based on environment
       const getSocketURL = () => {
-        if (import.meta.env.PROD) {
+        // Check if we're in production (multiple ways to detect)
+        const isProduction = 
+          import.meta.env.PROD || 
+          import.meta.env.NODE_ENV === 'production' ||
+          window.location.hostname.includes('vercel.app') ||
+          window.location.hostname.includes('study-sync-mern-project');
+        
+        if (isProduction) {
           // In production, use the production URL
-          return import.meta.env.VITE_API_URL || "https://study-sync-mern-project.vercel.app";
+          return "https://study-sync-mern-project.vercel.app";
         }
         // In development, use localhost
         return "http://localhost:5000";
       };
       
+      const socketURL = getSocketURL();
+      console.log("🔗 Socket.IO connecting to:", socketURL);
+      console.log("🔍 Environment detection:", {
+        'import.meta.env.PROD': import.meta.env.PROD,
+        'import.meta.env.NODE_ENV': import.meta.env.NODE_ENV,
+        'window.location.hostname': window.location.hostname,
+        'VITE_API_URL': import.meta.env.VITE_API_URL
+      });
+      
       // Create new socket connection
-      newSocket = io(getSocketURL(), {
+      newSocket = io(socketURL, {
         withCredentials: true,
         auth: { token }, // Send token for auth
         reconnectionAttempts: 5,
