@@ -23,8 +23,19 @@
       "dest": "/client/dist/index.html"
     }
   ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server/server.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/client/dist/index.html"
+    }
+  ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "VITE_API_URL": "https://study-sync-mern-project.vercel.app"
   },
   "functions": {
     "server/server.js": {

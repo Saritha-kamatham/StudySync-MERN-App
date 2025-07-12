@@ -147,7 +147,7 @@ export const AblyProvider = ({ children }) => {
         console.log(`📡 Sending to server: ${serverEventType}`, data);
 
         // Send to server for processing
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000'}/api/ably/message`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || window.location.origin}/api/ably/message`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

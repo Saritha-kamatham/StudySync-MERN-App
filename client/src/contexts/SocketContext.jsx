@@ -23,8 +23,8 @@ export const SocketProvider = ({ children }) => {
       // Determine socket server URL based on environment
       const getSocketURL = () => {
         if (import.meta.env.PROD) {
-          // In production, use the API URL or current domain
-          return import.meta.env.VITE_API_URL || window.location.origin;
+          // In production, use the production URL
+          return import.meta.env.VITE_API_URL || "https://study-sync-mern-project.vercel.app";
         }
         // In development, use localhost
         return "http://localhost:5000";
@@ -34,10 +34,13 @@ export const SocketProvider = ({ children }) => {
       newSocket = io(getSocketURL(), {
         withCredentials: true,
         auth: { token }, // Send token for auth
-        reconnectionAttempts: 10,
-        reconnectionDelay: 1000,
-        timeout: 10000, // Increase timeout
-        transports: ['websocket', 'polling'], // Try both transports
+        reconnectionAttempts: 5,
+        reconnectionDelay: 2000,
+        timeout: 20000, // Increase timeout for Vercel
+        // For Vercel deployment, prioritize polling over websockets
+        transports: import.meta.env.PROD ? ['polling', 'websocket'] : ['websocket', 'polling'],
+        upgrade: true,
+        rememberUpgrade: true,
       });
 
       // Connection debugging

@@ -14,10 +14,15 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.NODE_ENV === 'production' 
+      ? ["https://study-sync-mern-project.vercel.app", "https://*.vercel.app", "https://vercel.app"]
+      : "http://localhost:5173",
     methods: ["GET", "POST"],
-    credentials: true
-  }
+    credentials: true,
+    allowEIO3: true
+  },
+  allowEIO3: true,
+  transports: ['polling', 'websocket']
 });
 
 // Create rooms object to track active users
@@ -32,7 +37,9 @@ require('./sockets/socket')(io, socketRooms);
 
 // Middleware
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.NODE_ENV === 'production' 
+    ? ["https://study-sync-mern-project.vercel.app", "https://*.vercel.app"]
+    : "http://localhost:5173",
   credentials: true
 }));
 app.use(express.json());
