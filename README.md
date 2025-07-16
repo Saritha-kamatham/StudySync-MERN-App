@@ -81,6 +81,7 @@ A modern, professional study room application built with the MERN stack, featuri
 5. **Access the application**
    - Frontend: http://localhost:5173
    - Backend: http://localhost:5000
+   - live link : https://lnkd.in/g_HpnqQJ
 
 ## 🌐 Deployment
 
@@ -140,7 +141,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Developer
 
-**Saksham** - [GitHub](https://github.com/Saksham2509)
+**Saritha** - [GitHub](https://github.com/Saritha-Kamatham)
 
 ## 🙏 Acknowledgments
 
