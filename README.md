@@ -41,7 +41,7 @@ A modern, professional study room application built with the MERN stack, featuri
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Saksham2509/StudySync-Mern-Project.git
+   git clone https://github.com/Saritha-kamatham/StudySync-Mern-Project.git
    cd StudySync-Mern-Project
    ```
 
